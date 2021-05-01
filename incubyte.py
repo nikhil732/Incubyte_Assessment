@@ -16,10 +16,10 @@ import mysql.connector
 # f.close()
 
 
-'''connecting the cursor
-'''
+# '''connecting the cursor
+# '''
 
-cursor = connection.cursor()
+# cursor = connection.cursor()
 
 '''creating the database
 '''
@@ -27,31 +27,38 @@ cursor = connection.cursor()
 from getpass import getpass
 from mysql.connector import connect, Error
 
-try:
-    with connect(
-        host="localhost",
-        user=input("Enter username: "),
-        password=getpass("Enter password: "),
-    ) as connection:
-        create_db_query = "CREATE DATABASE incubyte_customer_data"
-        with connection.cursor() as cursor:
-            cursor.execute(create_db_query)
-except Error as e:
-    print(e)
+# try:
+#     with connect(
+#         host="localhost",
+#         user=input("Enter username: "),
+#         password=getpass("Enter password: "),
+#     ) as connection:
+#         print("Connected successfully")
+#         create_db_query = "CREATE DATABASE incubyte_customer_database"
+#         with connection.cursor() as cursor:
+#             cursor.execute(create_db_query)
+# except Error as e:
+#     print(e)
 
-'''connecting to the database
-'''
+# '''connecting to the database
+# '''
 
-try:
-    with connect(
-        host="localhost",
-        user=input("Enter username: "),
-        password=getpass("Enter password: "),
-        database="incubyte_customer_data",
-    ) as connection:
-        print(connection)
-except Error as e:
-    print(e)
+# try:
+#     with connect(
+#         host="localhost",
+#         user=input("Enter username: "),
+#         password=getpass("Enter password: "),
+#         database="incubyte's_customer_data",
+#     ) as connection:
+#         print(connection)
+#         show_db_query="SHOW DATABASES"
+#         with connection.cursor() as cursor:
+#             cursor.execute(show_db_query)
+#             for db in cursor:
+#                 print(db)
+# except Error as e:
+#     print(e)
+
 
 '''creating the table RECORDS
 '''
@@ -60,49 +67,92 @@ create_RECORDS_table_query = """
 CREATE TABLE RECORDS(
     Customer_Name VARCHAR(255) PRIMARY KEY,
     Customer_ID VARCHAR(18) NOT NULL,
-    Customer_Opendate DATE(8) NOT NULL,
-    Last_Consulteddate DATE(8),
+    Customer_Opendate DATE NOT NULL,
+    Last_Consulteddate DATE,
     Vaccination_Type CHAR(5),
     Doctor_Consulted CHAR(255),
     State CHAR(5),
     Country CHAR(5),
-    Postcode INT(5),
-    Date_of_Birth DATE(8),
+    Date_of_Birth DATE,
     Active_Customer CHAR(1)
 )
 """
-with connection.cursor() as cursor:
-    cursor.execute(create_RECORDS_table_query)
-    connection.commit()
+
+# try:
+#     with connect(
+#         host="localhost",
+#         user=input("Enter username: "),
+#         password=getpass("Enter password: "),
+#         database="incubyte_customer_database",
+#     ) as connection:
+#         print(connection)
+#         with connection.cursor() as cursor:
+#             cursor.execute(create_RECORDS_table_query)
+#             connection.commit()
+# except Error as e:
+#     print(e)
+
 
 '''insert records into the table
 '''
 
-file=open('data/file1.txt','r')
-lines-file.readlines()
-for line in lines[1:]:
-    line=line.split("|")
-    line=line[1:]
-    line[-1]=line[-1][0]
-    with connection.cursor() as cursor:
-        cursor.execute("""INSERT INTO RECORDS(Customer_Name,Customer_ID,Customer_Opendata,Last_Consulteddate,Vaccination_Type,Doctor_Consulted,State,Country,Postcode,Date_of_Birth,Active_Customer) 
-                          VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s))
-                          """,line)
-        connection.commit()
-'''selecting coutries from the table
-'''
+try:
+    with connect(
+        host="localhost",
+        user=input("Enter username: "),
+        password=getpass("Enter password: "),
+        database="incubyte_customer_database",
+    ) as connection:
+        print(connection)
+        file=open('data/file1.txt','r')
+        lines=file.readlines()
+        for line in lines[1:-1]:
+            line=line.split("|")
+            print(line)
+            line=line[2:]
+            y=line[-2][4:]
+            m=line[-2][2:4]
+            d=line[-2][0:2]
+            line[-2]=y+m+d
+            # print(line)
+            # print(line[-1])
+            line[-1]=line[-1][0]
+            print(line)
+            # with connection.cursor() as cursor:
+            #     cursor.execute("""INSERT INTO RECORDS(Customer_Name,Customer_ID,Customer_Opendate,Last_Consulteddate,Vaccination_Type,Doctor_Consulted,State,Country,Date_of_Birth,Active_Customer) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",line)
+            #     connection.commit()
+        
+        show_rows="SELECT * FROM RECORDS"
+        with connection.cursor() as cursor:
+            cursor.execute(show_rows)
+            for row in cursor:
+                print(row)
 
-select_country_query="SELECT Country from RECORDS"
-with connection.cursor() as cursor:
-    cursor.execute(select_country_query)
-    countries = cursor.fetchall()
+        select_country_query="SELECT Country FROM RECORDS"
+        print(select_country_query)
+        with connection.cursor() as cursor:
+            cursor.execute(select_country_query)
+            countries=cursor.fetchall()
+        print(countries)
 
-'''creating seperate tables for the country wise data
-'''
+        for country in countries:
+            print(country[0])
+            s=str(country[0])
+            create_country_table_query="CREATE TABLE Table_"+s+" AS (SELECT * FROM RECORDS WHERE Country = '"+s+"')"
+            print(create_country_table_query)
+            with connection.cursor() as cursor:
+                cursor.execute(create_country_table_query)
+                connection.commit()
 
-for country in countries:
-    create_country_table_query="CREATE TABLE Table_%s AS (SELECT * FROM RECORDS WHERE Country = %s" %(country,country)
-    with connection.cursor() as cursor:
-        cursor.execute(create_country_table_query)
-        connection.commit()
+        show_rows="SHOW TABLES"
+        with connection.cursor() as cursor:
+            cursor.execute(show_rows)
+            for row in cursor:
+                print(row)
+
+        
+
+
+except Error as e:
+    print(e)
         
